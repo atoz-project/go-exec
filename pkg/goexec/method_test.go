@@ -168,3 +168,80 @@ func TestExecuteMethod_ConnectErrorShortCircuits(t *testing.T) {
 		t.Fatalf("calls=%v, want [connect]", calls)
 	}
 }
+
+func TestExecuteCleanMethod_ExecuteErrorStillCleansModule(t *testing.T) {
+	calls := []string{}
+
+	m := &recordingMethod{calls: &calls, connectErr: errors.New("nope")}
+	execIO := &ExecutionIO{Input: &ExecutionInput{Executable: "whoami"}}
+	ctx := zerolog.New(io.Discard).WithContext(context.Background())
+
+	if err := ExecuteCleanMethod(ctx, m, execIO); err == nil {
+		t.Fatalf("expected error")
+	}
+
+	// moduleClean must still run even when ExecuteMethod returns an error.
+	want := []string{"connect", "moduleClean"}
+	if len(calls) != len(want) {
+		t.Fatalf("calls=%v, want %v", calls, want)
+	}
+	for i := range want {
+		if calls[i] != want[i] {
+			t.Fatalf("calls=%v, want %v", calls, want)
+		}
+	}
+}
+
+type recordingAuxMethod struct {
+	calls *[]string
+
+	connectErr error
+	initErr    error
+	callErr    error
+	cleanErr   error
+}
+
+func (m *recordingAuxMethod) Connect(context.Context) error {
+	*m.calls = append(*m.calls, "connect")
+	return m.connectErr
+}
+
+func (m *recordingAuxMethod) Init(context.Context) error {
+	*m.calls = append(*m.calls, "init")
+	return m.initErr
+}
+
+func (m *recordingAuxMethod) Call(context.Context) error {
+	*m.calls = append(*m.calls, "call")
+	return m.callErr
+}
+
+func (m *recordingAuxMethod) Clean(context.Context) error {
+	*m.calls = append(*m.calls, "moduleClean")
+	return m.cleanErr
+}
+
+func TestExecuteCleanAuxiliaryMethod_ReturnsExecuteErrorAndStillCleans(t *testing.T) {
+	calls := []string{}
+
+	m := &recordingAuxMethod{
+		calls:    &calls,
+		callErr:  errors.New("boom"),
+		cleanErr: errors.New("ignored"),
+	}
+	ctx := zerolog.New(io.Discard).WithContext(context.Background())
+
+	if err := ExecuteCleanAuxiliaryMethod(ctx, m); err == nil {
+		t.Fatalf("expected error")
+	}
+
+	want := []string{"connect", "init", "call", "moduleClean"}
+	if len(calls) != len(want) {
+		t.Fatalf("calls=%v, want %v", calls, want)
+	}
+	for i := range want {
+		if calls[i] != want[i] {
+			t.Fatalf("calls=%v, want %v", calls, want)
+		}
+	}
+}

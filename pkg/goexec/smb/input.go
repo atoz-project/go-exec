@@ -35,7 +35,8 @@ func (o *FileStager) Stage(ctx context.Context, reader io.Reader) (err error) {
 		if err != nil {
 			return
 		}
-		defer o.AddCleaners(o.Client.Close)
+		// Register early so it runs last (Cleaner is LIFO, like defer).
+		o.AddCleaners(o.Client.Close)
 	}
 
 	if o.ForceReconnect || o.Client.share != o.Share {
@@ -54,13 +55,13 @@ func (o *FileStager) Stage(ctx context.Context, reader io.Reader) (err error) {
 		return
 	}
 
-	o.AddCleaners(func(_ context.Context) error { return writer.Close() })
-
 	if o.DeleteStage {
 		o.AddCleaners(func(_ context.Context) error {
 			return shareRemoveFile(o.Client.mount, o.relativePath)
 		})
 	}
+	// Close writer before deleting stage file (Cleaner is LIFO).
+	o.AddCleaners(func(_ context.Context) error { return writer.Close() })
 
 	return
 }

@@ -63,7 +63,8 @@ func (o *OutputFileFetcher) GetOutput(ctx context.Context, writer io.Writer) (er
 		if err != nil {
 			return
 		}
-		defer o.AddCleaners(o.Client.Close)
+		// Register early so it runs last (Cleaner is LIFO, like defer).
+		o.AddCleaners(o.Client.Close)
 	}
 
 	if o.ForceReconnect || o.Client.share != o.Share {
@@ -101,16 +102,15 @@ func (o *OutputFileFetcher) GetOutput(ctx context.Context, writer io.Writer) (er
 	}(); err != nil {
 		return err
 	} else {
-		o.AddCleaners(func(_ context.Context) error {
-			return reader.Close()
-		})
-
 		if o.DeleteOutputFile {
-			// Delete after closing reader (cleaners run in order added).
 			o.AddCleaners(func(_ context.Context) error {
 				return shareRemoveFile(o.Client.mount, o.relativePath)
 			})
 		}
+		// Close reader before removing output file (Cleaner is LIFO).
+		o.AddCleaners(func(_ context.Context) error {
+			return reader.Close()
+		})
 
 		if _, err := io.Copy(writer, reader); err != nil {
 			return err

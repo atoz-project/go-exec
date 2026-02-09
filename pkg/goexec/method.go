@@ -1,131 +1,140 @@
 package goexec
 
 import (
-  "context"
-  "fmt"
+	"context"
+	"fmt"
 
-  "github.com/rs/zerolog"
+	"github.com/rs/zerolog"
 )
 
 type Method interface {
-  Connect(ctx context.Context) error
-  Init(ctx context.Context) error
+	Connect(ctx context.Context) error
+	Init(ctx context.Context) error
 }
 
 type CleanMethod interface {
-  Method
-  Clean
+	Method
+	Clean
 }
 
 type ExecutionMethod interface {
-  Method
-  Execute(ctx context.Context, io *ExecutionIO) error
+	Method
+	Execute(ctx context.Context, io *ExecutionIO) error
 }
 
 type CleanExecutionMethod interface {
-  ExecutionMethod
-  Clean
+	ExecutionMethod
+	Clean
 }
 
 type AuxiliaryMethod interface {
-  Method
-  Call(ctx context.Context) error
+	Method
+	Call(ctx context.Context) error
 }
 
 type CleanAuxiliaryMethod interface {
-  AuxiliaryMethod
-  Clean
+	AuxiliaryMethod
+	Clean
 }
 
 func ExecuteMethod(ctx context.Context, module ExecutionMethod, execIO *ExecutionIO) (err error) {
-  log := zerolog.Ctx(ctx)
+	log := zerolog.Ctx(ctx)
 
-  if err = module.Connect(ctx); err != nil {
-    log.Error().Err(err).Msg("Connection failed")
-    return fmt.Errorf("connect: %w", err)
-  }
-  log.Debug().Msg("Module connected")
+	if err = module.Connect(ctx); err != nil {
+		log.Error().Err(err).Msg("Connection failed")
+		return fmt.Errorf("connect: %w", err)
+	}
+	log.Debug().Msg("Module connected")
 
-  if err = module.Init(ctx); err != nil {
-    log.Error().Err(err).Msg("Module initialization failed")
-    return fmt.Errorf("init module: %w", err)
-  }
-  log.Debug().Msg("Module initialized")
+	if err = module.Init(ctx); err != nil {
+		log.Error().Err(err).Msg("Module initialization failed")
+		return fmt.Errorf("init module: %w", err)
+	}
+	log.Debug().Msg("Module initialized")
 
-  if err = module.Execute(ctx, execIO); err != nil {
-    log.Error().Err(err).Msg("Execution failed")
-    return fmt.Errorf("execute: %w", err)
-  }
+	if err = module.Execute(ctx, execIO); err != nil {
+		log.Error().Err(err).Msg("Execution failed")
+		return fmt.Errorf("execute: %w", err)
+	}
 
-  return
+	return
 }
 
 func ExecuteAuxiliaryMethod(ctx context.Context, module AuxiliaryMethod) (err error) {
-  log := zerolog.Ctx(ctx)
+	log := zerolog.Ctx(ctx)
 
-  if err = module.Connect(ctx); err != nil {
-    log.Error().Err(err).Msg("Connection failed")
-    return fmt.Errorf("connect: %w", err)
-  }
-  log.Debug().Msg("Auxiliary module connected")
+	if err = module.Connect(ctx); err != nil {
+		log.Error().Err(err).Msg("Connection failed")
+		return fmt.Errorf("connect: %w", err)
+	}
+	log.Debug().Msg("Auxiliary module connected")
 
-  if err = module.Init(ctx); err != nil {
-    log.Error().Err(err).Msg("Module initialization failed")
-    return fmt.Errorf("init module: %w", err)
-  }
-  log.Debug().Msg("Auxiliary module initialized")
+	if err = module.Init(ctx); err != nil {
+		log.Error().Err(err).Msg("Module initialization failed")
+		return fmt.Errorf("init module: %w", err)
+	}
+	log.Debug().Msg("Auxiliary module initialized")
 
-  if err = module.Call(ctx); err != nil {
-    log.Error().Err(err).Msg("Auxiliary method failed")
-    return fmt.Errorf("call: %w", err)
-  }
-  log.Debug().Msg("Auxiliary method succeeded")
+	if err = module.Call(ctx); err != nil {
+		log.Error().Err(err).Msg("Auxiliary method failed")
+		return fmt.Errorf("call: %w", err)
+	}
+	log.Debug().Msg("Auxiliary method succeeded")
 
-  return nil
+	return nil
 }
 
 func ExecuteCleanAuxiliaryMethod(ctx context.Context, module CleanAuxiliaryMethod) (err error) {
-  log := zerolog.Ctx(ctx)
+	log := zerolog.Ctx(ctx)
 
-  defer func() {
-    if err = module.Clean(ctx); err != nil {
-      log.Error().Err(err).Msg("Module cleanup failed")
-      err = nil
-    }
-  }()
+	defer func() {
+		if cleanErr := module.Clean(ctx); cleanErr != nil {
+			log.Error().Err(cleanErr).Msg("Module cleanup failed")
+		}
+	}()
 
-  if err = ExecuteAuxiliaryMethod(ctx, module); err != nil {
-    return fmt.Errorf("execute auxiliary method: %w", err)
-  }
-  return
+	if err = ExecuteAuxiliaryMethod(ctx, module); err != nil {
+		return fmt.Errorf("execute auxiliary method: %w", err)
+	}
+	return nil
 }
 
 func ExecuteCleanMethod(ctx context.Context, module CleanExecutionMethod, execIO *ExecutionIO) (err error) {
-  log := zerolog.Ctx(ctx)
+	log := zerolog.Ctx(ctx)
 
-  if err = ExecuteMethod(ctx, module, execIO); err != nil {
-    return
-  }
+	cleaned := false
+	defer func() {
+		if cleaned {
+			return
+		}
+		if cleanErr := module.Clean(ctx); cleanErr != nil {
+			log.Error().Err(cleanErr).Msg("Module cleanup failed")
+		}
+	}()
 
-  if err = module.Clean(ctx); err != nil {
-    log.Error().Err(err).Msg("Module cleanup failed")
-    err = nil
-  }
+	if err = ExecuteMethod(ctx, module, execIO); err != nil {
+		return
+	}
 
-  if execIO.Output != nil && execIO.Output.Provider != nil {
-    log.Info().Msg("Collecting output")
+	if cleanErr := module.Clean(ctx); cleanErr != nil {
+		log.Error().Err(cleanErr).Msg("Module cleanup failed")
+	}
+	cleaned = true
 
-    defer func() {
-      if cleanErr := execIO.Clean(ctx); cleanErr != nil {
-        log.Debug().Err(cleanErr).Msg("Output provider cleanup failed")
-      }
-    }()
+	if execIO.Output != nil && execIO.Output.Provider != nil {
+		log.Info().Msg("Collecting output")
 
-    if err := execIO.GetOutput(ctx); err != nil {
-      log.Error().Err(err).Msg("Output collection failed")
-      return fmt.Errorf("get output: %w", err)
-    }
-    log.Debug().Msg("Output collection succeeded")
-  }
-  return
+		defer func() {
+			if cleanErr := execIO.Clean(ctx); cleanErr != nil {
+				log.Debug().Err(cleanErr).Msg("Output provider cleanup failed")
+			}
+		}()
+
+		if err := execIO.GetOutput(ctx); err != nil {
+			log.Error().Err(err).Msg("Output collection failed")
+			return fmt.Errorf("get output: %w", err)
+		}
+		log.Debug().Msg("Output collection succeeded")
+	}
+	return
 }

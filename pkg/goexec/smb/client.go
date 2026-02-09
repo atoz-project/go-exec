@@ -1,123 +1,149 @@
 package smb
 
 import (
-  "context"
-  "errors"
-  "fmt"
-  "github.com/oiweiwei/go-smb2.fork"
-  "github.com/rs/zerolog"
-  "net"
+	"context"
+	"errors"
+	"fmt"
+	"github.com/oiweiwei/go-smb2.fork"
+	"github.com/rs/zerolog"
+	"net"
+	"strconv"
 )
 
 type Client struct {
-  ClientOptions
+	ClientOptions
 
-  conn  net.Conn
-  sess  *smb2.Session
-  mount *smb2.Share
+	conn  net.Conn
+	sess  *smb2.Session
+	mount *smb2.Share
 
-  connected bool
-  share     string
+	connected bool
+	share     string
 }
 
+var (
+	umountShare   = func(sh *smb2.Share) error { return sh.Umount() }
+	logoffSession = func(s *smb2.Session) error { return s.Logoff() }
+)
+
 func (c *Client) Session() (sess *smb2.Session) {
-  return c.sess
+	return c.sess
 }
 
 func (c *Client) String() string {
-  return ClientName
+	return ClientName
 }
 
 func (c *Client) Logger(ctx context.Context) zerolog.Logger {
-  return zerolog.Ctx(ctx).With().Str("client", c.String()).Logger()
+	return zerolog.Ctx(ctx).With().Str("client", c.String()).Logger()
 }
 
 func (c *Client) Mount(ctx context.Context, share string) (err error) {
 
-  if c.sess == nil {
-    return errors.New("SMB session not initialized")
-  }
+	if c.sess == nil {
+		return errors.New("SMB session not initialized")
+	}
 
-  c.mount, err = c.sess.Mount(share)
-  zerolog.Ctx(ctx).Debug().Str("share", share).Msg("Mounted SMB share")
-  c.share = share
+	c.mount, err = c.sess.Mount(share)
+	zerolog.Ctx(ctx).Debug().Str("share", share).Msg("Mounted SMB share")
+	c.share = share
 
-  return
+	return
 }
 
 func (c *Client) Connect(ctx context.Context) (err error) {
 
-  log := c.Logger(ctx)
-  {
-    if c.netDialer == nil {
-      panic(fmt.Errorf("TCP dialer not initialized"))
-    }
-    if c.dialer == nil {
-      panic(fmt.Errorf("%s dialer not initialized", c.String()))
-    }
-  }
+	log := c.Logger(ctx)
+	if c.netDialer == nil {
+		return fmt.Errorf("TCP dialer not initialized: call Parse() first")
+	}
+	if c.dialer == nil {
+		return fmt.Errorf("%s dialer not initialized: call Parse() first", c.String())
+	}
+	if c.Port == 0 {
+		return fmt.Errorf("%s port not initialized: call Parse() first", c.String())
+	}
 
-  // Establish TCP connection
-  c.conn, err = c.netDialer.Dial("tcp", net.JoinHostPort(c.Host, "445"))
+	// Establish TCP connection
+	address := net.JoinHostPort(c.Host, strconv.FormatUint(uint64(c.Port), 10))
+	dialCtx := ctx
+	if c.ConnectTimeout > 0 {
+		var cancel context.CancelFunc
+		dialCtx, cancel = context.WithTimeout(ctx, c.ConnectTimeout)
+		defer cancel()
+	}
+	if cd, ok := c.netDialer.(interface {
+		DialContext(context.Context, string, string) (net.Conn, error)
+	}); ok {
+		c.conn, err = cd.DialContext(dialCtx, "tcp", address)
+	} else {
+		c.conn, err = c.netDialer.Dial("tcp", address)
+	}
 
-  if err != nil {
-    return err
-  }
+	if err != nil {
+		return err
+	}
 
-  log = log.With().Str("address", c.conn.RemoteAddr().String()).Logger()
-  log.Debug().Msgf("Connected to %s server", c.String())
+	log = log.With().Str("address", c.conn.RemoteAddr().String()).Logger()
+	log.Debug().Msgf("Connected to %s server", c.String())
 
-  // Open SMB session
-  c.sess, err = c.dialer.DialContext(ctx, c.conn)
+	// Open SMB session
+	c.sess, err = c.dialer.DialContext(ctx, c.conn)
 
-  if err != nil {
-    log.Error().Err(err).Msgf("Failed to open %s session", c.String())
-    return fmt.Errorf("dial %s: %w", c.String(), err)
-  }
-  log.Debug().Msgf("Opened %s session", c.String())
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to open %s session", c.String())
+		_ = c.conn.Close()
+		c.conn = nil
+		return fmt.Errorf("dial %s: %w", c.String(), err)
+	}
+	log.Debug().Msgf("Opened %s session", c.String())
 
-  c.connected = true
+	c.connected = true
 
-  return
+	return
 }
 
 func (c *Client) Close(ctx context.Context) (err error) {
 
-  log := c.Logger(ctx)
+	log := c.Logger(ctx)
 
-  c.connected = false
+	c.connected = false
 
-  // Close SMB session
-  if c.sess != nil {
-    defer func() {
-      if err = c.sess.Logoff(); err != nil {
-        log.Debug().Err(err).Msgf("Failed to discard SMB session")
-      } else {
-        log.Debug().Msg("Discarded SMB session")
-      }
-    }()
+	var errs []error
 
-  } else if c.conn != nil {
+	// Unmount SMB share
+	if c.mount != nil {
+		if cleanErr := umountShare(c.mount); cleanErr != nil {
+			log.Debug().Err(cleanErr).Msg("Failed to unmount share")
+			errs = append(errs, cleanErr)
+		} else {
+			log.Debug().Msg("Unmounted file share")
+		}
+		c.mount = nil
+		c.share = ""
+	}
 
-    defer func() {
-      if err = c.conn.Close(); err != nil {
-        log.Debug().Err(err).Msgf("Failed to disconnect SMB client")
-      } else {
-        log.Debug().Msg("Disconnected SMB client")
-      }
-    }()
-  }
+	// Close SMB session
+	if c.sess != nil {
+		if cleanErr := logoffSession(c.sess); cleanErr != nil {
+			log.Debug().Err(cleanErr).Msgf("Failed to discard SMB session")
+			errs = append(errs, cleanErr)
+		} else {
+			log.Debug().Msg("Discarded SMB session")
+		}
+		c.sess = nil
+	}
 
-  // Unmount SMB share
-  if c.mount != nil {
-    defer func() {
-      if err = c.mount.Umount(); err != nil {
-        log.Debug().Err(err).Msg("Failed to unmount share")
-      } else {
-        log.Debug().Msg("Unmounted file share")
-      }
-      c.share = ""
-    }()
-  }
-  return
+	// Close underlying connection (if any)
+	if c.conn != nil {
+		if cleanErr := c.conn.Close(); cleanErr != nil {
+			log.Debug().Err(cleanErr).Msgf("Failed to disconnect SMB client")
+			errs = append(errs, cleanErr)
+		} else {
+			log.Debug().Msg("Disconnected SMB client")
+		}
+		c.conn = nil
+	}
+
+	return errors.Join(errs...)
 }
