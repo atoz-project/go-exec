@@ -1,60 +1,17 @@
-# GoExec - Remote Execution Multitool
+# go-exec
 
-![goexec](https://github.com/user-attachments/assets/16782082-5a42-477c-95e2-46295bbe3c34)
+> **Fork Notice:** This project is forked from [FalconOpsLLC/goexec](https://github.com/FalconOpsLLC/goexec) (MIT License, Copyright 2025 FalconOps LLC). The original project provides a Windows remote execution multitool with multiple protocol support. This fork (`github.com/atoz-project/go-exec`) is created for secondary development and internal use.
 
-GoExec is a new take on some of the methods used to gain remote execution on Windows devices. GoExec implements a number of largely unrealized execution methods and provides significant OPSEC improvements overall.
-
-The original post about GoExec v0.1.0 can be found [here](https://www.falconops.com/blog/introducing-goexec)
+A Windows remote execution multitool. Implements multiple execution methods (WMI, DCOM, SCMR, TSCH) with OPSEC-focused design.
 
 ## Installation
 
-### Build & Install with Go
-
-To build this project from source, you will need Go version 1.23.* or greater and a 64-bit target architecture. More information on managing Go installations can be found [here](https://go.dev/doc/manage-install)
-
 ```shell
-# Install goexec
-CGO_ENABLED=0 go install -ldflags="-s -w" github.com/FalconOpsLLC/goexec@latest
-```
-
-#### Manual Installation
-
-For pre-release features, fetch the latest commit and build manually.
-
-```shell
-# (Linux) Install GoExec manually from source
-# Fetch source
-git clone https://github.com/FalconOpsLLC/goexec
-cd goexec
-
-# Build goexec (Go >= 1.23)
+# Build from source (Go >= 1.23)
+git clone https://github.com/atoz-project/go-exec
+cd go-exec
 CGO_ENABLED=0 go build -ldflags="-s -w"
-
-# (Optional) Install goexec to /usr/local/bin/goexec
-sudo install goexec /usr/local/bin
 ```
-
-### Install with Docker
-
-We've provided a Dockerfile to build and run GoExec within Docker containers.
-
-```shell
-# (Linux) Install GoExec Docker image
-# Fetch source
-git clone https://github.com/FalconOpsLLC/goexec
-cd goexec
-
-# Build goexec image (as root/docker group)
-docker build . --tag goexec --network host
-
-# Run goexec via Docker container
-alias goexec='sudo docker run -it --rm goexec'
-goexec -h # display help menu
-```
-
-### Install from Release
-
-You may also download [the latest release](https://github.com/FalconOpsLLC/goexec/releases/latest) for 64-bit Windows, macOS, or Linux.
 
 ## Usage
 
