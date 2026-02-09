@@ -3,6 +3,7 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -32,4 +33,3 @@ jobs:
         env:
           CGO_ENABLED: "0"
         run: go test ./...
-
