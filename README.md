@@ -6,11 +6,48 @@ A Windows remote execution multitool. Implements multiple execution methods (WMI
 
 ## Installation
 
+### Build & Install with Go
+
+To build this project from source, you will need Go version 1.23.* or greater and a 64-bit target architecture. More information on managing Go installations can be found [here](https://go.dev/doc/manage-install)
+
 ```shell
-# Build from source (Go >= 1.23)
+# Install go-exec
+CGO_ENABLED=0 go install -ldflags="-s -w" github.com/atoz-project/go-exec@latest
+```
+
+#### Manual Installation
+
+For pre-release features, fetch the latest commit and build manually.
+
+```shell
+# (Linux) Install go-exec manually from source
+# Fetch source
 git clone https://github.com/atoz-project/go-exec
 cd go-exec
+
+# Build go-exec (Go >= 1.23)
 CGO_ENABLED=0 go build -ldflags="-s -w"
+
+# (Optional) Install go-exec to /usr/local/bin/goexec
+sudo install goexec /usr/local/bin
+```
+
+### Install with Docker
+
+We've provided a Dockerfile to build and run go-exec within Docker containers.
+
+```shell
+# (Linux) Install go-exec Docker image
+# Fetch source
+git clone https://github.com/atoz-project/go-exec
+cd go-exec
+
+# Build goexec image (as root/docker group)
+docker build . --tag goexec --network host
+
+# Run goexec via Docker container
+alias goexec='sudo docker run -it --rm goexec'
+goexec -h # display help menu
 ```
 
 ## Usage
