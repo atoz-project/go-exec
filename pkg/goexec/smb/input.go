@@ -3,7 +3,7 @@ package smb
 import (
   "context"
   "fmt"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "io"
   "os"
   "path"

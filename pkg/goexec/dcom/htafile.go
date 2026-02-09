@@ -6,7 +6,7 @@ import (
   "fmt"
   "strings"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/midl/uuid"
   "github.com/oiweiwei/go-msrpc/msrpc/dcom"
   "github.com/oiweiwei/go-msrpc/msrpc/dcom/urlmon"

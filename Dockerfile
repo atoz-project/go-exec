@@ -1,7 +1,7 @@
 FROM golang:1.24-alpine AS goexec-builder
 LABEL builder="true"
 
-WORKDIR /go/src/github.com/FalconOpsLLC/goexec
+WORKDIR /go/src/github.com/atoz-project/go-exec
 
 COPY . .
 

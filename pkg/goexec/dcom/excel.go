@@ -7,8 +7,8 @@ import (
   "strings"
   "syscall"
 
-  "github.com/FalconOpsLLC/goexec/internal/util"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/internal/util"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/midl/uuid"
   "github.com/oiweiwei/go-msrpc/msrpc/erref/hresult"
   "github.com/rs/zerolog"

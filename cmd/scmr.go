@@ -3,12 +3,12 @@ package cmd
 import (
   "context"
 
-  "github.com/FalconOpsLLC/goexec/internal/util"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/internal/util"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/ssp/gssapi"
   "github.com/spf13/cobra"
 
-  scmrexec "github.com/FalconOpsLLC/goexec/pkg/goexec/scmr"
+  scmrexec "github.com/atoz-project/go-exec/pkg/goexec/scmr"
 )
 
 func scmrCmdInit() {

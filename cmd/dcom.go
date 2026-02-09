@@ -7,8 +7,8 @@ import (
   "os"
   "strings"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
-  dcomexec "github.com/FalconOpsLLC/goexec/pkg/goexec/dcom"
+  "github.com/atoz-project/go-exec/pkg/goexec"
+  dcomexec "github.com/atoz-project/go-exec/pkg/goexec/dcom"
   "github.com/oiweiwei/go-msrpc/ssp/gssapi"
   "github.com/spf13/cobra"
 )

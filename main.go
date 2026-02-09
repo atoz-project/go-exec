@@ -1,6 +1,6 @@
 package main
 
-import "github.com/FalconOpsLLC/goexec/cmd"
+import "github.com/atoz-project/go-exec/cmd"
 
 func main() {
   cmd.Execute()

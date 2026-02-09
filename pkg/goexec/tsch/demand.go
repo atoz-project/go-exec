@@ -3,7 +3,7 @@ package tschexec
 import (
   "context"
   "fmt"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/msrpc/tsch/itaskschedulerservice/v1"
   "github.com/rs/zerolog"
 

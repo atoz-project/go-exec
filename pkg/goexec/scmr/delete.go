@@ -2,7 +2,7 @@ package scmrexec
 
 import (
   "context"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
 )
 
 const (

@@ -5,9 +5,9 @@ import (
   "fmt"
   "time"
 
-  "github.com/FalconOpsLLC/goexec/internal/util"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
-  tschexec "github.com/FalconOpsLLC/goexec/pkg/goexec/tsch"
+  "github.com/atoz-project/go-exec/internal/util"
+  "github.com/atoz-project/go-exec/pkg/goexec"
+  tschexec "github.com/atoz-project/go-exec/pkg/goexec/tsch"
   "github.com/oiweiwei/go-msrpc/ssp/gssapi"
   "github.com/spf13/cobra"
 )

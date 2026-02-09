@@ -4,7 +4,7 @@ import (
   "context"
   "errors"
   "fmt"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/RedTeamPentesting/adauth/smbauth"
   msrpcSMB2 "github.com/oiweiwei/go-msrpc/smb2"
   "github.com/oiweiwei/go-smb2.fork"

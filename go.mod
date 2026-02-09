@@ -1,4 +1,4 @@
-module github.com/FalconOpsLLC/goexec
+module github.com/atoz-project/go-exec
 
 go 1.24.1
 

@@ -6,9 +6,9 @@ import (
   "os"
   "runtime/pprof"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec/dce"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec/smb"
+  "github.com/atoz-project/go-exec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec/dce"
+  "github.com/atoz-project/go-exec/pkg/goexec/smb"
   "github.com/RedTeamPentesting/adauth"
   "github.com/google/uuid"
   "github.com/oiweiwei/go-msrpc/ssp"

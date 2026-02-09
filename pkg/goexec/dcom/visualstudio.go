@@ -9,7 +9,7 @@ See https://learn.microsoft.com/en-us/dotnet/api/envdte._dte.executecommand
 import (
   "context"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/midl/uuid"
 
   _ "github.com/oiweiwei/go-msrpc/msrpc/erref/hresult"

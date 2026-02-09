@@ -3,8 +3,8 @@ package cmd
 import (
   "context"
   "encoding/json"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
-  wmiexec "github.com/FalconOpsLLC/goexec/pkg/goexec/wmi"
+  "github.com/atoz-project/go-exec/pkg/goexec"
+  wmiexec "github.com/atoz-project/go-exec/pkg/goexec/wmi"
   "github.com/oiweiwei/go-msrpc/ssp/gssapi"
   "github.com/spf13/cobra"
   "os"

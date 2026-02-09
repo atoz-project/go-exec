@@ -5,7 +5,7 @@ import (
   "fmt"
   "net"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/RedTeamPentesting/adauth"
   "github.com/RedTeamPentesting/adauth/dcerpcauth"
   "github.com/oiweiwei/go-msrpc/dcerpc"

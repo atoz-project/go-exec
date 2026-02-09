@@ -3,7 +3,7 @@ package wmiexec
 import (
   "context"
   "errors"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/rs/zerolog"
 )
 

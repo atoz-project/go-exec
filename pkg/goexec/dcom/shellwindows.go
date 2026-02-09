@@ -5,7 +5,7 @@ import (
   "errors"
   "fmt"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/midl/uuid"
   "github.com/oiweiwei/go-msrpc/msrpc/dcom/oaut"
   "github.com/rs/zerolog/log"

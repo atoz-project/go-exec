@@ -3,7 +3,7 @@ package scmrexec
 import (
   "context"
   "fmt"
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/oiweiwei/go-msrpc/msrpc/scmr/svcctl/v2"
   "github.com/rs/zerolog"
 

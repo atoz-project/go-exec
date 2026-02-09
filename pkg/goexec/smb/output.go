@@ -10,7 +10,7 @@ import (
   "strings"
   "time"
 
-  "github.com/FalconOpsLLC/goexec/pkg/goexec"
+  "github.com/atoz-project/go-exec/pkg/goexec"
   "github.com/rs/zerolog"
 )
 
