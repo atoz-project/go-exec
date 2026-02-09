@@ -27,6 +27,9 @@ func (m *WmiCall) Call(ctx context.Context) (err error) {
 	zerolog.Ctx(ctx).Info().Msg("WMI call successful")
 
 	out, err := json.Marshal(outMap)
+	if err != nil {
+		return fmt.Errorf("marshal output: %w", err)
+	}
 
 	if m.Out != nil {
 		// Write output with a trailing line feed

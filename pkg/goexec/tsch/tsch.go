@@ -92,58 +92,6 @@ type simpleTask struct {
 	Settings      taskSettings   `xml:"Settings"`
 }
 
-/*
-
-// newSettings just creates a taskSettings instance with the necessary values + a few dynamic ones
-func newSettings(terminate, onDemand, startWhenAvailable bool) *taskSettings {
-  return &taskSettings{
-    MultipleInstancesPolicy: "IgnoreNew",
-    AllowHardTerminate:      terminate,
-    IdleSettings: taskIdleSettings{
-      StopOnIdleEnd: true,
-      RestartOnIdle: false,
-    },
-    AllowStartOnDemand: onDemand,
-    Enabled:            true,
-    Hidden:             true,
-    Priority:           7, // a pretty standard value for scheduled tasks
-    StartWhenAvailable: startWhenAvailable,
-  }
-}
-
-// newTask creates a task with any static values filled
-func newTask(se *taskSettings, pr []taskPrincipal, tr taskTriggers, cmd, args string) *simpleTask {
-  if se == nil {
-    se = newSettings(true, true, false)
-  }
-  if pr == nil || len(pr) == 0 {
-    pr = []taskPrincipal{
-      {
-        ID:       "1",
-        UserID:   "S-1-5-18",
-        RunLevel: "HighestAvailable",
-      },
-    }
-  }
-  return &simpleTask{
-    TaskVersion:   "1.2",
-    TaskNamespace: "http://schemas.microsoft.com/windows/2004/02/mit/task",
-    Triggers:      tr,
-    Principals:    taskPrincipals{Principals: pr},
-    Settings:      *se,
-    Actions: taskActions{
-      Context: pr[0].ID,
-      Exec: []taskActionExec{
-        {
-          Command:   cmd,
-          Arguments: args,
-        },
-      },
-    },
-  }
-}
-*/
-
 // xmlDuration is a *very* simple implementation of xs:duration - only accepts +seconds
 func xmlDuration(dur time.Duration) string {
 	if s := int(dur.Seconds()); s >= 0 {

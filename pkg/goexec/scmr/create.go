@@ -18,7 +18,6 @@ const (
 type ScmrCreate struct {
 	Scmr
 	goexec.Cleaner
-	goexec.Executor
 
 	IO goexec.ExecutionIO
 

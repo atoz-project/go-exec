@@ -14,7 +14,6 @@ const (
 
 type TschCreate struct {
 	Tsch
-	goexec.Executor
 	goexec.Cleaner
 
 	IO goexec.ExecutionIO

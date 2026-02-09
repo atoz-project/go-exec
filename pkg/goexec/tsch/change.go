@@ -24,7 +24,6 @@ const (
 
 type TschChange struct {
 	Tsch
-	goexec.Executor
 	goexec.Cleaner
 
 	IO goexec.ExecutionIO
@@ -104,7 +103,7 @@ func (m *TschChange) Execute(ctx context.Context, execIO *goexec.ExecutionIO) (e
 
 		m.AddCleaners(func(ctxInner context.Context) error {
 
-			revertResponse, err := m.tsch.RegisterTask(ctx, &itaskschedulerservice.RegisterTaskRequest{
+			revertResponse, err := m.tsch.RegisterTask(ctxInner, &itaskschedulerservice.RegisterTaskRequest{
 				Path:  m.TaskPath,
 				XML:   retrieveResponse.XML,
 				Flags: FlagTaskUpdate,

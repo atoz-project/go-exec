@@ -18,7 +18,6 @@ const (
 type ScmrChange struct {
 	Scmr
 	goexec.Cleaner
-	goexec.Executor
 
 	IO goexec.ExecutionIO
 

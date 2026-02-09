@@ -18,7 +18,6 @@ const (
 
 type TschDemand struct {
 	Tsch
-	goexec.Executor
 	goexec.Cleaner
 
 	IO goexec.ExecutionIO

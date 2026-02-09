@@ -14,8 +14,6 @@ type ScmrDelete struct {
 	Scmr
 	goexec.Cleaner
 
-	IO goexec.ExecutionIO
-
 	ServiceName string
 }
 

@@ -21,7 +21,6 @@ const (
 
 type Dcom struct {
 	goexec.Cleaner
-	goexec.Executor
 
 	Client     *dce.Client
 	comVersion *dcom.COMVersion

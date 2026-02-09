@@ -8,7 +8,7 @@ import (
 	"github.com/atoz-project/go-exec/pkg/goexec"
 	"github.com/oiweiwei/go-msrpc/midl/uuid"
 	"github.com/oiweiwei/go-msrpc/msrpc/dcom/oaut"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 
 	_ "github.com/oiweiwei/go-msrpc/msrpc/erref/hresult"
 	_ "github.com/oiweiwei/go-msrpc/msrpc/erref/ntstatus"
@@ -37,6 +37,7 @@ func (m *DcomShellWindows) Init(ctx context.Context) (err error) {
 
 // Execute will perform command execution via the ShellWindows object. See https://enigma0x3.net/2017/01/23/lateral-movement-via-dcom-round-2/
 func (m *DcomShellWindows) Execute(ctx context.Context, execIO *goexec.ExecutionIO) (err error) {
+	log := zerolog.Ctx(ctx)
 	method := "Item"
 
 	iv, err := m.callComMethod(ctx, nil, "Item")

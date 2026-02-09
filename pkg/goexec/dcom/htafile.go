@@ -90,7 +90,6 @@ func (m *DcomHtafile) Execute(ctx context.Context, execIO *goexec.ExecutionIO) (
 	} else {
 		log.Warn().Msgf("Load call returned %d", lrs.Return)
 	}
-	_ = lrs
 	return
 }
 

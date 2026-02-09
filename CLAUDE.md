@@ -21,13 +21,19 @@ CGO_ENABLED=0 go install -ldflags="-s -w"
 CGO_ENABLED=0 go test ./...
 
 # Run single package test
-CGO_ENABLED=0 go test ./pkg/goexec/... -v
+CGO_ENABLED=0 go test ./pkg/goexec/scmr/... -v
+
+# Run single test function
+CGO_ENABLED=0 go test ./cmd/ -run TestScmrCreateHasOutputFlags -v
+
+# Format code
+gofmt -w .
 
 # Docker build
 docker build . --tag goexec --network host
 ```
 
-No CGO dependencies — always build with `CGO_ENABLED=0`.
+No CGO dependencies — always build with `CGO_ENABLED=0`. Go version >= 1.24.
 
 ## Architecture
 
@@ -68,7 +74,11 @@ Authentication via `adauth` library — supports password, NT hash, Kerberos AES
 
 ### Output Collection
 
-Optional process output capture: wraps command in `cmd.exe /c ... > tempfile`, then fetches via SMB (`OutputProvider` interface). Configured through `ExecutionIO`.
+Optional process output capture: wraps command in `cmd.exe /c ... > tempfile`, then fetches via SMB ADMIN$ share (`OutputProvider` interface). Configured through `ExecutionIO`. All execution modules (scmr, tsch, wmi, dcom) support `--out` flag.
+
+### SCMR Permission Model
+
+SCMR module uses least-privilege access: `ScManagerConnect | ScManagerCreateService` for SCM handle, `ServiceStart | ServiceDelete` for created services, `ServiceModifyAccess` for changed services. Constants defined in `pkg/goexec/scmr/scmr.go`.
 
 ## Code Conventions
 
@@ -77,3 +87,4 @@ Optional process output capture: wraps command in `cmd.exe /c ... > tempfile`, t
 - `pkg/goexec/` — public library interfaces and types
 - Logging: `zerolog` with structured fields, context-propagated loggers
 - Flag organization: custom `flagSet` groups with labeled sections in help output
+- Tests: source-code scanning style (go/ast, string matching) for verifying code structure; table-driven where applicable
