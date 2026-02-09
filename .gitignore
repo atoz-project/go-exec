@@ -4,6 +4,7 @@
 /dist
 /goexec
 /goexec.*
+/go-exec
 /patch
 /go.work
 /go.work.sum

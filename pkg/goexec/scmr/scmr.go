@@ -32,12 +32,15 @@ const (
 
 	ServiceQueryConfig     uint32 = 0x00000001
 	ServiceChangeConfig    uint32 = 0x00000002
+	ServiceQueryStatus     uint32 = 0x00000004
 	ServiceStart           uint32 = 0x00000010
 	ServiceStop            uint32 = 0x00000020
+	ServicePauseContinue   uint32 = 0x00000040
 	ServiceDelete          uint32 = 0x00010000 // special permission
 	ServiceControlStop     uint32 = 0x00000001
 	ServiceControlPause    uint32 = 0x00000002
 	ServiceControlContinue uint32 = 0x00000003
+	ScManagerConnect       uint32 = 0x0001
 	ScManagerCreateService uint32 = 0x00000002
 
 	/*
@@ -62,7 +65,7 @@ const (
 	*/
 
 	ServiceDeleteAccess = ServiceDelete
-	ServiceModifyAccess = ServiceQueryConfig | ServiceChangeConfig | ServiceStop | ServiceStart | ServiceDelete
+	ServiceModifyAccess = ServiceQueryConfig | ServiceQueryStatus | ServiceChangeConfig | ServiceStop | ServiceStart | ServicePauseContinue | ServiceDelete
 	ServiceCreateAccess = ScManagerCreateService | ServiceStart | ServiceStop | ServiceDelete
 	ServiceAllAccess    = ServiceCreateAccess | ServiceModifyAccess
 )

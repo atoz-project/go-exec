@@ -72,7 +72,7 @@ func (m *Scmr) Init(ctx context.Context) (err error) {
 	resp, err := m.ctl.OpenSCMW(ctx, &svcctl.OpenSCMWRequest{
 		MachineName:   m.hostname,
 		DatabaseName:  "ServicesActive",
-		DesiredAccess: ServiceAllAccess,
+		DesiredAccess: ScManagerConnect | ScManagerCreateService,
 	})
 	if err != nil {
 		log.Debug().Err(err).Msg("Failed to open SCM handle")
@@ -97,14 +97,14 @@ func (m *Scmr) Reconnect(ctx context.Context) (err error) {
 }
 
 // openService will a handle to the desired service
-func (m *Scmr) openService(ctx context.Context, name string) (svc *service, err error) {
+func (m *Scmr) openService(ctx context.Context, name string, desiredAccess uint32) (svc *service, err error) {
 
 	log := zerolog.Ctx(ctx)
 
 	resp, err := m.ctl.OpenServiceW(ctx, &svcctl.OpenServiceWRequest{
 		ServiceManager: m.scm,
 		ServiceName:    name,
-		DesiredAccess:  ServiceAllAccess, // TODO: dynamic
+		DesiredAccess:  desiredAccess,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open service handle")

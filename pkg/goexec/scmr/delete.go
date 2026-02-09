@@ -26,7 +26,7 @@ func (m *ScmrDelete) Clean(ctx context.Context) error {
 
 func (m *ScmrDelete) Call(ctx context.Context) (err error) {
 
-	svc, err := m.openService(ctx, m.ServiceName)
+	svc, err := m.openService(ctx, m.ServiceName, ServiceDeleteAccess)
 	if err != nil {
 		return err
 	}

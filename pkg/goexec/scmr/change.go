@@ -135,7 +135,7 @@ func (m *ScmrChange) Execute(ctx context.Context, in *goexec.ExecutionIO) (err e
 	openResponse, err := m.ctl.OpenServiceW(ctx, &svcctl.OpenServiceWRequest{
 		ServiceManager: m.scm,
 		ServiceName:    svc.name,
-		DesiredAccess:  ServiceAllAccess,
+		DesiredAccess:  ServiceModifyAccess,
 	})
 
 	if err != nil {
@@ -241,7 +241,7 @@ func (m *ScmrChange) Execute(ctx context.Context, in *goexec.ExecutionIO) (err e
 			if err = m.Reconnect(ctx); err != nil {
 				return err
 			}
-			svc, err = m.openService(ctx, svc.name)
+			svc, err = m.openService(ctx, svc.name, ServiceModifyAccess)
 
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to reopen service handle")

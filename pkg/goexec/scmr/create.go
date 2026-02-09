@@ -57,7 +57,7 @@ func (m *ScmrCreate) Execute(ctx context.Context, in *goexec.ExecutionIO) (err e
 		BinaryPathName: in.String(),
 		ServiceType:    ServiceWin32OwnProcess,
 		StartType:      ServiceDemandStart,
-		DesiredAccess:  ServiceAllAccess, // TODO: Replace
+		DesiredAccess:  ServiceStart | ServiceDelete,
 	})
 
 	if err != nil {
@@ -125,7 +125,7 @@ func (m *ScmrCreate) Execute(ctx context.Context, in *goexec.ExecutionIO) (err e
 		if err = m.Reconnect(ctx); err != nil {
 			return err
 		}
-		svc, err = m.openService(ctx, svc.name)
+		svc, err = m.openService(ctx, svc.name, ServiceStart|ServiceDelete)
 
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to reopen service handle")

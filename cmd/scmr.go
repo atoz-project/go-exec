@@ -37,8 +37,7 @@ func scmrCreateCmdInit() {
 
 	scmrCreateExecFlags := newFlagSet("Execution")
 
-	// TODO: SCMR output
-	//registerExecutionOutputFlags(scmrCreateExecFlags.Flags)
+	registerExecutionOutputFlags(scmrCreateExecFlags.Flags)
 
 	scmrCreateExecFlags.Flags.StringVarP(&exec.Input.ExecutablePath, "executable-path", "f", "", "Full path to a remote Windows executable")
 	scmrCreateExecFlags.Flags.StringVarP(&exec.Input.Arguments, "args", "a", "", "Arguments to pass to the executable")
@@ -74,8 +73,7 @@ func scmrChangeCmdInit() {
 	scmrChangeExecFlags.Flags.StringVarP(&exec.Input.ExecutablePath, "executable-path", "f", "", "Full path to remote Windows executable")
 	scmrChangeExecFlags.Flags.StringVarP(&exec.Input.Arguments, "args", "a", "", "Arguments to pass to executable")
 
-	// TODO: SCMR output
-	//registerExecutionOutputFlags(scmrChangeExecFlags.Flags)
+	registerExecutionOutputFlags(scmrChangeExecFlags.Flags)
 	//registerStageFlags(scmrChangeExecFlags.Flags)
 
 	cmdFlags[scmrChangeCmd] = []*flagSet{
@@ -141,7 +139,7 @@ var (
   remote target with the provided executable & arguments as the lpBinaryPathName`,
 		Args: args(
 			argsRpcClient("cifs", "ncacn_np:[svcctl]"),
-			argsSmbClient(),
+			argsOutput("smb"),
 		),
 
 		Run: func(cmd *cobra.Command, args []string) {
@@ -184,7 +182,10 @@ var (
   using the RChangeServiceConfigW method rather than calling RCreateServiceW
   like scmr create. The modified service is restored to its original state
   after execution`,
-		Args: argsRpcClient("cifs", "ncacn_np:[svcctl]"),
+		Args: args(
+			argsRpcClient("cifs", "ncacn_np:[svcctl]"),
+			argsOutput("smb"),
+		),
 
 		Run: func(cmd *cobra.Command, args []string) {
 			scmrChange.Client = &rpcClient

@@ -25,7 +25,6 @@ type TschCreate struct {
 	StopDelay   time.Duration
 	DeleteDelay time.Duration
 	TimeOffset  time.Duration
-	// FEATURE: more opts
 }
 
 func (m *TschCreate) Clean(ctx context.Context) error {
